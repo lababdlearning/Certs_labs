@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"kind":"Deployment","apiVersion":"apps/v1","metadata":{"name":"hello-openshift","creationTimestamp":null,"labels":{"app":"hello-openshift"}},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"hello-openshift"}},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"hello-openshift"}},"spec":{"containers":[{"name":"hello-world-nginx","image":"registry.access.redhat.com/redhattraining/hello-world-nginx:v1.0","resources":{}}]}},"strategy":{}},"status":{}}
+  creationTimestamp: null
+  labels:
+    app: hello-openshift
+  name: hello-openshift
+  namespace: do280-ch1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-openshift
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: hello-openshift
+    spec:
+      containers:
+      - image: quay.io/redhattraining/hello-world-nginx:latest
+        name: hello-world-nginx
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources: {}
+status: {}

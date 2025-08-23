@@ -1,0 +1,180 @@
+# create new name space for this chapter
+#oc new-project do280_ch1
+#
+#Deploy mysql DB:
+
+kubectl create deployment db-pod --port 3306 \
+--image registry.ocp4.example.com:8443/rhel8/mysql-80
+
+# [root@basestation ~]# kubectl get all
+# Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+# NAME                          READY   STATUS   RESTARTS   AGE
+# pod/db-pod-5bf9d76484-h8kps   0/1     Error    0          24s
+
+# NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+# deployment.apps/db-pod   0/1     1            0           24s
+
+# NAME                                DESIRED   CURRENT   READY   AGE
+# replicaset.apps/db-pod-5bf9d76484   1         1         0       24s
+
+# [root@basestation ~]# oc logs pod/db-pod-5bf9d76484-h8kps
+# => sourcing 20-validate-variables.sh ...
+# You must either specify the following environment variables:
+#   MYSQL_USER (regex: '^[a-zA-Z0-9_]+$')
+#   MYSQL_PASSWORD (regex: '^[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]+$')
+#   MYSQL_DATABASE (regex: '^[a-zA-Z0-9_]+$')
+# Or the following environment variable:
+#   MYSQL_ROOT_PASSWORD (regex: '^[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]+$')
+# Or both.
+# Optional Settings:
+#   MYSQL_LOWER_CASE_TABLE_NAMES (default: 0)
+#   MYSQL_LOG_QUERIES_ENABLED (default: 0)
+#   MYSQL_MAX_CONNECTIONS (default: 151)
+#   MYSQL_FT_MIN_WORD_LEN (default: 4)
+#   MYSQL_FT_MAX_WORD_LEN (default: 20)
+#   MYSQL_AIO (default: 1)
+#   MYSQL_KEY_BUFFER_SIZE (default: 32M or 10% of available memory)
+#   MYSQL_MAX_ALLOWED_PACKET (default: 200M)
+#   MYSQL_TABLE_OPEN_CACHE (default: 400)
+#   MYSQL_SORT_BUFFER_SIZE (default: 256K)
+#   MYSQL_READ_BUFFER_SIZE (default: 8M or 5% of available memory)
+#   MYSQL_INNODB_BUFFER_POOL_SIZE (default: 32M or 50% of available memory)
+#   MYSQL_INNODB_LOG_FILE_SIZE (default: 8M or 15% of available memory)
+#   MYSQL_INNODB_LOG_BUFFER_SIZE (default: 8M or 15% of available memory)
+
+# For more information, see https://github.com/sclorg/mysql-container
+
+
+# Set enyronment to remove error
+
+kubectl set env deployment/db-pod \
+MYSQL_USER='user1' \
+MYSQL_PASSWORD='mypa55w0rd' \
+MYSQL_DATABASE='items'
+
+
+# [root@basestation ~]# kubectl get all
+# Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+# NAME                          READY   STATUS    RESTARTS   AGE
+# pod/db-pod-5bf9d76484-h8kps   0/1     Error     4          2m19s
+# pod/db-pod-6bb8c6c69b-68g6m   1/1     Running   0          5s
+
+# NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+# deployment.apps/db-pod   1/1     1            1           2m19s
+
+# NAME                                DESIRED   CURRENT   READY   AGE
+# replicaset.apps/db-pod-5bf9d76484   0         0         0       2m19s
+# replicaset.apps/db-pod-6bb8c6c69b   1         1         1       5s
+
+
+# create declarative yaml file 
+
+kubectl create deployment hello-openshift -o yaml \
+--image quay.io/redhattraining/hello-world-nginx:v1.0 \
+--save-config \
+--dry-run=client \
+> example-deployment.yaml
+
+
+# explain command to get detail for all fields 
+kubectl explain deployment.spec.template.spec
+
+# update namespace=do280-ch1 , replicas =2 , port = 8080/tcp in example-deployment.yaml
+
+# [user@host ~]$ tree my-app
+# my-app
+# ├── example_deployment.yaml
+# └── service
+# └── example_service.yaml
+# [user@host ~]$ kubectl create -R -f ~/my-app
+
+# [user@host ~]$ kubectl create -f https://example.com/example-apps/deployment.yaml
+
+kubectl create -f example-deployment.yaml
+
+# root@basestation CH_1]# oc get all
+# Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+# NAME                                  READY   STATUS    RESTARTS   AGE
+# pod/db-pod-6bb8c6c69b-68g6m           1/1     Running   0          30m
+# pod/hello-openshift-c5d6f6b88-bt9jk   1/1     Running   0          65s
+# pod/hello-openshift-c5d6f6b88-z2r8c   1/1     Running   0          82s
+
+# NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+# deployment.apps/db-pod            1/1     1            1           32m
+# deployment.apps/hello-openshift   2/2     2            2           5m47s
+
+# NAME                                        DESIRED   CURRENT   READY   AGE
+# replicaset.apps/db-pod-5bf9d76484           0         0         0       32m
+# replicaset.apps/db-pod-6bb8c6c69b           1         1         1       30m
+# replicaset.apps/hello-openshift-c5d6f6b88   2         2         2       82s
+
+## modify file and can check difference
+kubectl diff -f example-deployment.yaml
+
+# diff -u -N /tmp/LIVE-1064311864/apps.v1.Deployment.do280-ch1.hello-openshift /tmp/MERGED-3642032821/apps.v1.Deployment.do280-ch1.hello-openshift
+# --- /tmp/LIVE-1064311864/apps.v1.Deployment.do280-ch1.hello-openshift   2025-08-23 12:49:22.662575972 +0200
+# +++ /tmp/MERGED-3642032821/apps.v1.Deployment.do280-ch1.hello-openshift 2025-08-23 12:49:22.664575954 +0200
+# @@ -6,7 +6,7 @@
+#      kubectl.kubernetes.io/last-applied-configuration: |
+#        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"creationTimestamp":null,"labels":{"app":"hello-openshift"},"name":"hello-openshift","namespace":"do280-ch1"},"spec":{"replicas":2,"selector":{"matchLabels":{"app":"hello-openshift"}},"strategy":{},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"hello-openshift"}},"spec":{"containers":[{"image":"quay.io/redhattraining/hello-world-nginx:v1.0","name":"hello-world-nginx","ports":[{"containerPort":8080,"protocol":"TCP"}],"resources":{}}]}}},"status":{}}
+#    creationTimestamp: "2025-08-23T10:39:29Z"
+# -  generation: 3
+# +  generation: 4
+#    labels:
+#      app: hello-openshift
+#    name: hello-openshift
+# @@ -32,7 +32,7 @@
+#          app: hello-openshift
+#      spec:
+#        containers:
+# -      - image: quay.io/redhattraining/hello-world-nginx:v1.0
+# +      - image: quay.io/redhattraining/hello-world-nginx:latest
+#          imagePullPolicy: IfNotPresent
+#          name: hello-world-nginx
+#          ports:
+
+## apply modifications 
+
+kubectl apply -f example-deployment.yaml
+
+# [root@basestation CH_1]# oc get all
+# Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+# NAME                                   READY   STATUS    RESTARTS   AGE
+# pod/db-pod-6bb8c6c69b-68g6m            1/1     Running   0          36m
+# pod/hello-openshift-75f7cbfc44-2k9fd   1/1     Running   0          11s
+# pod/hello-openshift-75f7cbfc44-k88qs   1/1     Running   0          13s
+
+# NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+# deployment.apps/db-pod            1/1     1            1           38m
+# deployment.apps/hello-openshift   2/2     2            2           11m
+
+# NAME                                         DESIRED   CURRENT   READY   AGE
+# replicaset.apps/db-pod-5bf9d76484            0         0         0       38m
+# replicaset.apps/db-pod-6bb8c6c69b            1         1         1       36m
+# replicaset.apps/hello-openshift-75f7cbfc44   2         2         2       13s
+# replicaset.apps/hello-openshift-c5d6f6b88    0         0         0       7m9s
+
+## two new pod created with new replicaset (generation) and image hello-world-nginx:latest
+
+## Patching resource 
+
+kubectl patch deployment hello-openshift --patch-file  increse_replica.yaml
+
+# [root@basestation CH_1]# oc get all
+# Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+# NAME                                   READY   STATUS    RESTARTS   AGE
+# pod/db-pod-6bb8c6c69b-68g6m            1/1     Running   0          45m
+# pod/hello-openshift-75f7cbfc44-2k9fd   1/1     Running   0          9m19s
+# pod/hello-openshift-75f7cbfc44-4jdhj   1/1     Running   0          24s
+# pod/hello-openshift-75f7cbfc44-g7glp   1/1     Running   0          24s
+# pod/hello-openshift-75f7cbfc44-k88qs   1/1     Running   0          9m21s
+
+# NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+# deployment.apps/db-pod            1/1     1            1           47m
+# deployment.apps/hello-openshift   4/4     4            4           20m
+
+# NAME                                         DESIRED   CURRENT   READY   AGE
+# replicaset.apps/db-pod-5bf9d76484            0         0         0       47m
+# replicaset.apps/db-pod-6bb8c6c69b            1         1         1       45m
+# replicaset.apps/hello-openshift-75f7cbfc44   4         4         4       9m21s
+# replicaset.apps/hello-openshift-c5d6f6b88    0         0         0       16m

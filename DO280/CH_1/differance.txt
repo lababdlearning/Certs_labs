@@ -1,0 +1,30 @@
+4c4,5
+<   creationTimestamp: null
+---
+>   creationTimestamp: "2025-08-23T10:26:56Z"
+>   generation: 1
+7a9,10
+>   namespace: do280-ch1
+>   uid: bd221f94-308d-4ff8-9052-04f1bfafa381
+8a12
+>   progressDeadlineSeconds: 600
+9a14
+>   revisionHistoryLimit: 10
+13c18,22
+<   strategy: {}
+---
+>   strategy:
+>     rollingUpdate:
+>       maxSurge: 25%
+>       maxUnavailable: 25%
+>     type: RollingUpdate
+21a31
+>         imagePullPolicy: IfNotPresent
+23a34,40
+>         terminationMessagePath: /dev/termination-log
+>         terminationMessagePolicy: File
+>       dnsPolicy: ClusterFirst
+>       restartPolicy: Always
+>       schedulerName: default-scheduler
+>       securityContext: {}
+>       terminationGracePeriodSeconds: 30
