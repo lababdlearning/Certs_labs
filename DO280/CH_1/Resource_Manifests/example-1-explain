@@ -178,3 +178,47 @@ kubectl patch deployment hello-openshift --patch-file  increse_replica.yaml
 # replicaset.apps/db-pod-6bb8c6c69b            1         1         1       45m
 # replicaset.apps/hello-openshift-75f7cbfc44   4         4         4       9m21s
 # replicaset.apps/hello-openshift-c5d6f6b88    0         0         0       16m
+
+
+## Extra commands
+
+oc rollout restart deployment exoplanetshello-openshift
+
+# rolloust restart will restart pod if you change secret to configmap which is already loaded will not get updated even after new config apply
+
+oc delete -f <file or directary>
+
+# it will remove resource which is generated buy manifest file or files in directary
+
+# [root@basestation CH_1]# oc get all
+# Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+# NAME                                   READY   STATUS    RESTARTS   AGE
+# pod/db-pod-6bb8c6c69b-68g6m            1/1     Running   0          165m
+# pod/hello-openshift-75f7cbfc44-2k9fd   1/1     Running   0          129m
+# pod/hello-openshift-75f7cbfc44-4jdhj   1/1     Running   0          120m
+# pod/hello-openshift-75f7cbfc44-g7glp   1/1     Running   0          120m
+# pod/hello-openshift-75f7cbfc44-k88qs   1/1     Running   0          129m
+
+# NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+# deployment.apps/db-pod            1/1     1            1           167m
+# deployment.apps/hello-openshift   4/4     4            4           140m
+
+# NAME                                         DESIRED   CURRENT   READY   AGE
+# replicaset.apps/db-pod-5bf9d76484            0         0         0       167m
+# replicaset.apps/db-pod-6bb8c6c69b            1         1         1       165m
+# replicaset.apps/hello-openshift-75f7cbfc44   4         4         4       129m
+# replicaset.apps/hello-openshift-c5d6f6b88    0         0         0       136m
+# [root@basestation CH_1]# oc delete -f example-deployment.yaml
+# deployment.apps "hello-openshift" deleted
+# [root@basestation CH_1]# oc get all
+# Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+# NAME                          READY   STATUS    RESTARTS   AGE
+# pod/db-pod-6bb8c6c69b-68g6m   1/1     Running   0          165m
+
+# NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+# deployment.apps/db-pod   1/1     1            1           167m
+
+# NAME                                DESIRED   CURRENT   READY   AGE
+# replicaset.apps/db-pod-5bf9d76484   0         0         0       167m
+# replicaset.apps/db-pod-6bb8c6c69b   1         1         1       165m
+# [root@basestation CH_1]# 
