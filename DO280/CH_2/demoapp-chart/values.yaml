@@ -1,0 +1,16 @@
+replicaCount: 2
+
+image:
+  repository: quay.io/labandlearning/httpd
+  tag: "v1.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+route:
+  enabled: true
+  host: helm-demo.apps.lab.ocp.lan
+  tls:
+    enabled: false
